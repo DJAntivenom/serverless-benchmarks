@@ -12,7 +12,6 @@ CSV_REL_PATH = os.path.join(
     "result.csv"
 )
 
-# Configuration
 sns.set_theme(style="whitegrid")
 plt.rcParams.update({'figure.figsize': (14, 6)})
 
@@ -24,7 +23,6 @@ def get_save_path(directory, filename):
     full_path = os.path.join(directory, filename)
     
     if os.path.exists(full_path):
-        # File exists, generate new name with timestamp
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         name, ext = os.path.splitext(filename)
         new_filename = f"{name}_{timestamp}{ext}"
@@ -34,19 +32,14 @@ def get_save_path(directory, filename):
     return full_path
 
 def plot_results(csv_path):
-    # Load and Preprocess
     try:
         df = pd.read_csv(csv_path)
     except FileNotFoundError:
         print(f"Error: {csv_path} not found.")
         return
 
-    # Setup Output Directory
-    # Get the directory where the CSV sits
     csv_dir = os.path.dirname(csv_path)
-    # Define the new folder path
     output_dir = os.path.join(csv_dir, "analysis_plots")
-    # Create it if it doesn't exist
     os.makedirs(output_dir, exist_ok=True)
     
     print(f"Saving plots to: {output_dir}")
@@ -57,7 +50,7 @@ def plot_results(csv_path):
     df['exec_time_ms'] = df['exec_time'] / 1000.0
     
     # -------------------------------------------------------
-    # 1. Cold vs Warm Performance Comparison
+    # Cold vs Warm Performance Comparison
     # -------------------------------------------------------
     fig, axes = plt.subplots(1, 2, sharey=False)
     fig.suptitle('C++ Runtime Performance: Cold vs Warm')
@@ -76,13 +69,12 @@ def plot_results(csv_path):
 
     plt.tight_layout()
     
-    # Save Logic
     save_path = get_save_path(output_dir, "cpp_performance_comparison.png")
     plt.savefig(save_path)
     print(f"Saved: {os.path.basename(save_path)}")
 
     # -------------------------------------------------------
-    # 2. Overhead Analysis (Warm Starts Only)
+    # Overhead Analysis (Warm Starts Only)
     # -------------------------------------------------------
     plt.figure()
     warm_df = df[df['type'] == 'warm'].melt(
@@ -101,7 +93,7 @@ def plot_results(csv_path):
     print(f"Saved: {os.path.basename(save_path)}")
 
     # -------------------------------------------------------
-    # 3. Memory Usage Distribution
+    # Memory Usage Distribution
     # -------------------------------------------------------
     plt.figure(figsize=(8, 6))
     sns.boxplot(x="memory", y="mem_used", data=df, color="lightgreen")
