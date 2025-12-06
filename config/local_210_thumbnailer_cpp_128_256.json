@@ -1,0 +1,70 @@
+{
+  "experiments": {
+    "deployment": "local",
+    "update_code": false,
+    "update_storage": false,
+    "download_results": false,
+    "architecture": "x64",
+    "container_deployment": false,
+    "runtime": {
+      "language": "cpp",
+      "version": "all"
+    },
+    "type": "perf-cost",
+    "perf-cost": {
+      "benchmark": "210.thumbnailer",
+      "experiments": [
+        "cold",
+        "warm"
+      ],
+      "input-size": "test",
+      "repetitions": 50,
+      "concurrent-invocations": 10,
+      "memory-sizes": [
+        128,
+        256
+      ]
+    }
+  },
+  "deployment": {
+    "name": "local",
+    "aws": {
+      "region": "eu-central-2"
+    },
+    "local": {
+      "storage": {
+        "object": {
+          "type": "minio",
+          "minio": {
+            "address": "172.17.0.2:9000",
+            "mapped_port": 9011,
+            "access_key": "lbLenKyI2YJ4G7UofLiLee3ENuFCPhoi6EFiFyV1OJ4",
+            "secret_key": "6302e2b3a96b5e7fb936b627c8e9ad05cbe592cf4730f7a5dfb73945ed969364",
+            "instance_id": "29a4225be57879ce0187c3f2b8062f6ad1a28278436122481bef5defe00478a2",
+            "output_buckets": [],
+            "input_buckets": [],
+            "version": "RELEASE.2024-07-16T23-46-41Z",
+            "data_volume": "minio-volume",
+            "type": "minio"
+          }
+        },
+        "nosql": {
+          "type": "scylladb",
+          "scylladb": {
+            "address": "172.17.0.3:8000",
+            "mapped_port": 9012,
+            "alternator_port": 8000,
+            "access_key": "None",
+            "secret_key": "None",
+            "instance_id": "2c1e8d9ca3d9624cda76db9310c86b69ae615d85ef6e3305ed127fa88ebbe779",
+            "region": "None",
+            "cpus": 1,
+            "memory": "750",
+            "version": "6.0",
+            "data_volume": "scylladb-volume"
+          }
+        }
+      }
+    }
+  }
+}
