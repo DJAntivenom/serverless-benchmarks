@@ -422,9 +422,10 @@ class Benchmark(LoggingBase):
     def add_deployment_package_cpp(self, output_dir):
 
         cmake_script = """
-        cmake_minimum_required(VERSION 3.9)
-        set(CMAKE_CXX_STANDARD 14)
-        set(CMAKE_CXX_FLAGS "-Os")
+        cmake_minimum_required(VERSION 3.12)
+        set(CMAKE_CXX_COMPILER "gcc10-c++")
+        set(CMAKE_CXX_STANDARD 17)
+        set(CMAKE_CXX_FLAGS "-O2")
         project(benchmark LANGUAGES CXX)
         add_executable(
             ${PROJECT_NAME} "handler.cpp" "key-value.cpp"
@@ -432,7 +433,7 @@ class Benchmark(LoggingBase):
         )
         target_include_directories(${PROJECT_NAME} PRIVATE ".")
 
-        target_compile_features(${PROJECT_NAME} PRIVATE "cxx_std_14")
+        target_compile_features(${PROJECT_NAME} PRIVATE "cxx_std_17")
         target_compile_options(${PROJECT_NAME} PRIVATE "-Wall" "-Wextra")
 
         find_package(aws-lambda-runtime)
@@ -455,6 +456,18 @@ class Benchmark(LoggingBase):
 
         # this line creates a target that packages your binary and zips it up
         aws_lambda_package_target(${PROJECT_NAME})
+
+        # Load html data
+        file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/templates" 
+            DESTINATION "${CMAKE_CURRENT_BINARY_DIR}")
+        add_custom_command(
+            TARGET aws-lambda-package-${PROJECT_NAME}
+            POST_BUILD
+            WORKING_DIRECTORY ${CMAKE_CURRENT_BINARY_DIR}
+            COMMAND zip -r ${PROJECT_NAME}.zip templates/
+            COMMENT "Appending 'templates/' directory to the Lambda deployment zip..."
+            VERBOSITY verbose
+        )
         """
 
         self.logging.info(
