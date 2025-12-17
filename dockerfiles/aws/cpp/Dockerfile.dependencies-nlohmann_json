@@ -1,0 +1,19 @@
+ARG BASE_IMAGE
+FROM ${BASE_IMAGE} as builder
+ARG WORKERS
+ENV WORKERS=${WORKERS}
+
+
+RUN yum install -y unzip cmake3 curl git gcc gcc-c++ make
+RUN curl -LO https://github.com/nlohmann/json/archive/refs/tags/v3.12.0.zip > v3.12.0.zip
+RUN unzip v3.12.0.zip
+RUN mkdir build && cd build && \
+    cmake3 -D CMAKE_BUILD_TYPE=RELEASE \
+           -D JSON_BuildTests=OFF \
+           -D CMAKE_INSTALL_PREFIX=/opt/nlohmann_json \
+           ../json-3.12.0
+RUN cd build && make -j${WORKERS} && make install
+
+FROM ${BASE_IMAGE}
+
+COPY --from=builder /opt /opt

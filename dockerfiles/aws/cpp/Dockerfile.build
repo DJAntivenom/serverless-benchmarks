@@ -9,10 +9,12 @@ FROM ${BASE_REPOSITORY}:dependencies-runtime.aws.cpp.all as runtime
 FROM ${BASE_REPOSITORY}:dependencies-opencv.aws.cpp.all as opencv
 FROM ${BASE_REPOSITORY}:dependencies-igraph.aws.cpp.all as igraph
 FROM ${BASE_REPOSITORY}:dependencies-torch.aws.cpp.all as torch
+FROM ${BASE_REPOSITORY}:dependencies-nlohmann_json.aws.cpp.all as nlohmann_json
+FROM ${BASE_REPOSITORY}:dependencies-inja.aws.cpp.all as inja
 
 FROM ${BASE_IMAGE} as builder
 
-RUN yum install -y cmake3 curl libcurl libcurl-devel git gcc gcc-c++ make tar gzip zip zlib-devel openssl-devel openssl-static
+RUN yum install -y cmake3 curl libcurl libcurl-devel git gcc10 gcc10-c++ make tar gzip zip zlib-devel openssl-devel openssl-static
 ENV GOSU_VERSION 1.14
 # https://github.com/tianon/gosu/releases/tag/1.14
 # key https://keys.openpgp.org/search?q=tianon%40debian.org
@@ -36,6 +38,9 @@ COPY --from=hiredis /opt /opt
 COPY --from=opencv /opt/opencv /opt/opencv
 COPY --from=igraph /opt /opt
 COPY --from=torch /opt /opt
+COPY --from=nlohmann_json /opt /opt
+COPY --from=inja /opt /opt
+
 
 # Ensure libtorch.so symlink exists for runtime compatibility
 RUN ln -sf /opt/libtorch/lib/libtorch_cpu.so /opt/libtorch/lib/libtorch.so

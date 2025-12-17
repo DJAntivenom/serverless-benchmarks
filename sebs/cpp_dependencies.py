@@ -31,6 +31,8 @@ class CppDependencies(str, Enum):
     IGRAPH = "igraph"
     BOOST = "boost"
     HIREDIS = "hiredis"
+    NLOHMANN_JSON = "nlohmann_json"
+    INJA = "inja"
 
     @staticmethod
     def _dependency_dictionary() -> dict[str, CppDependencyConfig]:
@@ -81,6 +83,18 @@ class CppDependencies(str, Enum):
                 cmake_package="hiredis",
                 cmake_libs="hiredis::hiredis",
                 runtime_paths=["/opt/lib/libhiredis*"],
+            ),
+            CppDependencies.INJA: CppDependencyConfig(
+                docker_img="dependencies-inja.aws.cpp.all",
+                cmake_package="inja",
+                cmake_libs="pantor::inja",
+                runtime_paths=["/opt/inja"],
+            ),
+            CppDependencies.NLOHMANN_JSON: CppDependencyConfig(
+                docker_img="dependencies-nlohmann_json.aws.cpp.all",
+                cmake_package="nlohmann_json",
+                cmake_libs="pantor::nlohmann_json",
+                runtime_paths=["/opt/nlohmann_json"],
             ),
         }
 
