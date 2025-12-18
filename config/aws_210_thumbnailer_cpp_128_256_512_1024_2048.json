@@ -17,7 +17,7 @@
       "input-size": "test",
       "repetitions": 50,
       "concurrent-invocations": 10,
-      "memory-sizes": [128, 2048]
+      "memory-sizes": [128, 256, 512, 1024, 2048]
     }
   },
   "deployment": {
