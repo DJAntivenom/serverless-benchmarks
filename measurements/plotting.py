@@ -6,15 +6,17 @@ import sys
 from datetime import datetime
 
 CSV_REL_PATH = os.path.join(
-    os.pardir,
-    "perf-cost", 
-    "210.thumbnailer_warm_cold_128_256_python", 
+    "110-html-warm_cold_128_512_2048_python3.9_codepackage",
+    # "210.thumbnailer_warm_cold_128_256_512_1024_2048_python_codepackage",
     "perf-cost", 
     "result.csv"
 )
 
-LANGUAGE_NAME = "Python 3.11"
-LANGUAGE_NAME_SAFE = "python3.11"
+LANGUAGE_NAME = "Python 3.9"
+LANGUAGE_NAME_SAFE = "python3.9"
+BENCHMARK_NAME = "110.html"
+TITLE_COMMENT = "codepck"
+
 
 sns.set_theme(style="whitegrid")
 plt.rcParams.update({'figure.figsize': (8, 6)})
@@ -57,7 +59,7 @@ def plot_results(csv_path):
     # Cold vs Warm Performance Comparison
     # -------------------------------------------------------
     fig, axes = plt.subplots(1, 2, sharey=False)
-    fig.suptitle(f'{LANGUAGE_NAME} Runtime Performance: Cold vs Warm')
+    fig.suptitle(f'{BENCHMARK_NAME} {LANGUAGE_NAME} {TITLE_COMMENT} Runtime Performance: Cold vs Warm')
 
     # Cold Start Plot
     sns.boxplot(ax=axes[0], x="memory", y="client_time_ms", data=df[df['type'] == 'cold'], color="skyblue")
@@ -73,12 +75,31 @@ def plot_results(csv_path):
 
     plt.tight_layout()
     
-    save_path = get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_performance_comparison.png")
+    save_path = get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_warm_cold_comparison.png")
     plt.savefig(save_path)
     print(f"Saved: {os.path.basename(save_path)}")
 
     # -------------------------------------------------------
-    # Overhead Analysis (Warm Starts Only)
+    # Overhead (Cold Starts Only)
+    # -------------------------------------------------------
+    plt.figure()
+    # Filter for cold starts and valid provider times
+    cold_df = df[(df['type'] == 'cold') & (df['provider_time'] > 0)].melt(
+        id_vars=['memory'], 
+        value_vars=['client_time_ms', 'provider_time_ms', 'exec_time_ms'],
+        var_name='Metric', 
+        value_name='Time'
+    )
+    
+    sns.barplot(x="memory", y="Time", hue="Metric", data=cold_df, errorbar='sd', palette="muted")
+    plt.title(f"{BENCHMARK_NAME} {LANGUAGE_NAME} {TITLE_COMMENT} Overhead (Cold Start)")
+    plt.ylabel("Time (ms)")
+    plt.tight_layout()
+    
+    plt.savefig(get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_cold_overhead.png"))
+
+    # -------------------------------------------------------
+    # Overhead (Warm Starts Only)
     # -------------------------------------------------------
     plt.figure()
     warm_df = df[df['type'] == 'warm'].melt(
@@ -89,10 +110,10 @@ def plot_results(csv_path):
     )
     
     sns.barplot(x="memory", y="Time", hue="Metric", data=warm_df, errorbar='sd', palette="muted")
-    plt.title(f"{LANGUAGE_NAME} Overhead Analysis (Warm Start): Client vs Provider vs Exec Time")
+    plt.title(f"{BENCHMARK_NAME} {LANGUAGE_NAME} {TITLE_COMMENT} Overhead (Warm Start): Client/Provider/Exec Time")
     plt.ylabel("Time (ms)")
     
-    save_path = get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_overhead_analysis.png")
+    save_path = get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_warm_overhead.png")
     plt.savefig(save_path)
     print(f"Saved: {os.path.basename(save_path)}")
 
@@ -101,11 +122,13 @@ def plot_results(csv_path):
     # -------------------------------------------------------
     plt.figure(figsize=(8, 6))
     sns.boxplot(x="memory", y="mem_used", data=df, color="lightgreen")
-    plt.title(f"{LANGUAGE_NAME} Memory Usage Distribution")
+    plt.ylim(0, df['mem_used'].max() * 1.2)
+    plt.title(f"{BENCHMARK_NAME} {LANGUAGE_NAME} {TITLE_COMMENT} Memory Usage Distribution")
     plt.ylabel("Used Memory (MB)")
     plt.xlabel("Allocated Memory (MB)")
     
     save_path = get_save_path(output_dir, f"{LANGUAGE_NAME_SAFE}_memory_usage.png")
+    plt.tight_layout()
     plt.savefig(save_path)
     print(f"Saved: {os.path.basename(save_path)}")
 
